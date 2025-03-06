@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from app import Restaurant, Order, Agent, FDS
 from unittest.mock import patch
 
-orig_sleep = time.sleep
+orig_sleep = time.sleep #store krre taki patch se change hone k baad bhi use kr ske
 
 def custom_sleep(x):
     if x >= 1:
