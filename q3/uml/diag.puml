@@ -1,0 +1,138 @@
+@startuml
+' UML Class Diagram for Dollmart E-Market System
+
+class User {
+  - user_id : String
+  - name : String
+  - email : String
+  - phone : String
+  - address : String
+  - password : String
+  + register() : Boolean
+  + login(email: String, password: String) : User
+}
+
+class IndividualCustomer {
+  - loyalty_pts : int
+  - purchase_history : List<String>
+  - available_coupons : List<String>
+  + register() : Boolean
+  + from_db(data: Map) : IndividualCustomer
+}
+
+class RetailStore {
+  - store_name : String
+  - bulk_discount_rate : float
+  - purchase_history : List<String>
+  + register() : Boolean
+  + request_bulk_order(cart: ShoppingCart) : Boolean
+  + from_db(data: Map) : RetailStore
+}
+
+User <|-- IndividualCustomer
+User <|-- RetailStore
+
+class Product {
+  - product_id : String
+  - name : String
+  - description : String
+  - price : float
+  - category : String
+  - subcategory : String
+  - stock_quantity : int
+  + save_to_db() : Boolean
+  + update_stock(quantity: int) : Boolean
+  + get_details() : Map
+  + from_db(data: Map) : Product
+}
+
+class ProductCatalog {
+  + search_by_name(name: String) : List<Product>
+  + search_by_category(category: String) : List<Product>
+  + get_all_products() : List<Product>
+}
+
+class CartItem {
+  - product : Product
+  - quantity : int
+  + get_subtotal() : float
+  + to_dict() : Map
+}
+
+class ShoppingCart {
+  - user : User
+  - items : List<CartItem>
+  + add_item(product: Product, quantity: int) : Boolean
+  + remove_item(product_id: String) : Boolean
+  + update_quantity(product_id: String, quantity: int) : Boolean
+  + calculate_total() : float
+  + clear() : void
+  + display() : void
+}
+
+class Order {
+  - order_id : String
+  - user : User
+  - items : List<CartItem>
+  - order_date : DateTime
+  - total_amount : float
+  - final_amount : float
+  - discount_applied : float
+  - coupon_used : String
+  - status : String
+  - delivery_address : String
+  - estimated_delivery_time : DateTime
+  + calculate_final_price(coupon: Coupon) : float
+  + place_order() : Boolean
+  + cancel_order() : Boolean
+  + get_order_details() : Map
+  + track_order() : String
+  + update_status(status: String) : Boolean
+}
+
+class Coupon {
+  - coupon_id : String
+  - code : String
+  - discount_percentage : float
+  - valid_until : DateTime
+  - is_active : Boolean
+  - used : Boolean
+  + generate_coupon_for_user(user: IndividualCustomer, discount_percentage: float) : Boolean
+  + view_available_coupons(user: IndividualCustomer) : List<Coupon>
+  + apply_coupon(user: IndividualCustomer, coupon_code: String) : Coupon
+  + add_loyalty_points(user: IndividualCustomer, pts: int) : Boolean
+}
+
+class DollmartCLI {
+  - current_user : User
+  - shopping_cart : ShoppingCart
+  + start() : void
+  + show_main_menu() : void
+  + login() : void
+  + register() : void
+  + browse_products() : void
+  + search_products() : void
+  + display_products(products: List<Product>) : void
+  + view_cart() : void
+  + checkout() : void
+  + view_coupons() : void
+  + view_order_history() : void
+}
+
+
+' Relationships
+IndividualCustomer "1" -- "1" ShoppingCart : owns 
+RetailStore "1" -- "1" ShoppingCart : owns 
+CartItem "1" -- "1" Product : refers to 
+User "1" -- "0..*" Order : places 
+Order "1" -- "0..1" Coupon : uses 
+Order "1" -- "1..*" CartItem : contains 
+IndividualCustomer "1" -- "0..*" Coupon : has 
+ProductCatalog "1" -- "0..*" Product : catalogs 
+DollmartCLI "1" -- "0..1" User : interacts with 
+DollmartCLI "1" -- "0..1" ShoppingCart : manages
+ShoppingCart "1" -- "0..*" CartItem : contains
+
+
+
+@enduml
