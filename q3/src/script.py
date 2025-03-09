@@ -4,12 +4,10 @@ import datetime
 from pymongo import MongoClient
 
 def main():
-    # Connect to MongoDB using the provided connection string
     client = MongoClient("mongodb+srv://sakshamchitkara:Saksham@cluster0.fx609kp.mongodb.net/")
     db = client["dollmart_db"]
     products_collection = db["products"]
 
-    # Define sample categories and subcategories
     categories = ["Electronics", "Groceries", "Clothing", "Home & Kitchen", "Books", "Toys"]
     subcategories = {
         "Electronics": ["Mobile Phones", "Laptops", "Cameras"],
@@ -19,7 +17,7 @@ def main():
         "Books": ["Fiction", "Non-Fiction", "Educational"],
         "Toys": ["Action Figures", "Puzzles", "Board Games"]
     }
-    # Sample product names per category
+
     product_names = {
         "Electronics": ["Smartphone", "Laptop", "DSLR Camera", "Headphones", "Smartwatch"],
         "Groceries": ["Organic Apple", "Chocolate Bar", "Milk", "Bread", "Cheese"],
@@ -36,7 +34,7 @@ def main():
         "Customer favorite."
     ]
 
-    num_products = 100  # Number of random products to generate
+    num_products = 100  
 
     product_list = []
     for _ in range(num_products):
@@ -62,7 +60,6 @@ def main():
         }
         product_list.append(product)
 
-    # Insert generated products into the products collection
     result = products_collection.insert_many(product_list)
     print(f"Inserted {len(result.inserted_ids)} products into the database.")
 
