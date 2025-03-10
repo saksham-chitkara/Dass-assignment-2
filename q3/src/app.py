@@ -6,7 +6,6 @@ import pymongo
 from getpass import getpass
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import threading
 import time
 
 try:
@@ -161,7 +160,7 @@ class RetailStore(User):
                 "store_name": self.store_name,
                 "bulk_discount_rate": self.bulk_discount_rate,
                 "purchase_history": self.purchase_history,
-                "cart_items": []  # [CHANGE] Added cart_items field for retail store
+                "cart_items": []   
             }
 
             users_collection.insert_one(user_data)

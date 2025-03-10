@@ -1,5 +1,4 @@
 @startuml
-' UML Class Diagram for Dollmart E-Market System
 
 class User {
   - user_id : String
@@ -120,7 +119,6 @@ class DollmartCLI {
 }
 
 
-' Relationships
 IndividualCustomer "1" -- "1" ShoppingCart : owns 
 RetailStore "1" -- "1" ShoppingCart : owns 
 CartItem "1" -- "1" Product : refers to 

@@ -11,10 +11,10 @@ MARGIN = 50
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-RED = (220, 50, 50)
-YELLOW = (220, 220, 50)
-BOARD_COLOR = (210, 180, 140)
-HIGHLIGHT_COLOR = (100, 180, 255, 128)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)     
+BOARD_COLOR = (0, 191, 255) 
+HIGHLIGHT_COLOR = (0, 255, 0, 128)  s
 
 SMALL = 0
 MEDIUM = 1
@@ -189,56 +189,80 @@ class GobbletGame:
         return None
     
     def check_winner(self, last_move=None):
-        #row
+        # First check if the last move uncovered a winning sequence
+        if last_move:
+            row, col = last_move
+            cell = self.board[row][col]
+            if not cell.is_empty():
+                # Get the current top piece's player
+                current_player = cell.top().player
+                
+                # Check if removing this piece would expose an opponent's winning sequence
+                # Temporarily remove the piece
+                exposed_piece = cell.pop()
+                
+                # If there's now a piece underneath, check if it's part of a winning sequence for opponent
+                if not cell.is_empty():
+                    underneath_player = cell.top().player
+                    if underneath_player != current_player:  # Different player's piece is exposed
+                        # Check for winning sequence with the exposed piece
+                        # Row check
+                        if all(not self.board[row][c].is_empty() and 
+                            self.board[row][c].top().player == underneath_player 
+                            for c in range(BOARD_SIZE)):
+                            # Put the piece back and return the opponent as winner
+                            cell.push(exposed_piece)
+                            return underneath_player
+                        
+                        # Column check
+                        if all(not self.board[r][col].is_empty() and 
+                            self.board[r][col].top().player == underneath_player 
+                            for r in range(BOARD_SIZE)):
+                            cell.push(exposed_piece)
+                            return underneath_player
+                        
+                        # Diagonal checks
+                        if row == col and all(not self.board[i][i].is_empty() and 
+                                            self.board[i][i].top().player == underneath_player 
+                                            for i in range(BOARD_SIZE)):
+                            cell.push(exposed_piece)
+                            return underneath_player
+                        
+                        if row + col == BOARD_SIZE - 1 and all(not self.board[i][BOARD_SIZE-1-i].is_empty() and 
+                                                            self.board[i][BOARD_SIZE-1-i].top().player == underneath_player 
+                                                            for i in range(BOARD_SIZE)):
+                            cell.push(exposed_piece)
+                            return underneath_player
+                
+                cell.push(exposed_piece)
+        
+        # Regular checks for winning sequences
+        # Row check
         for row in range(BOARD_SIZE):
             for player in [0, 1]:
                 if all(not self.board[row][col].is_empty() and 
-                       self.board[row][col].top().player == player 
-                       for col in range(BOARD_SIZE)):
-                    
-                    #special case--> if moving exposes a winning sequence
-                    if last_move and last_move[0] == row and last_move[1] in range(BOARD_SIZE):
-                        opponent = 1 - player
-                        if player == opponent:  
-                            return opponent
+                    self.board[row][col].top().player == player 
+                    for col in range(BOARD_SIZE)):
                     return player
                 
-        #col
+        # Column check
         for col in range(BOARD_SIZE):
             for player in [0, 1]:
                 if all(not self.board[row][col].is_empty() and 
-                       self.board[row][col].top().player == player 
-                       for row in range(BOARD_SIZE)):
-                    
-                    #special case
-                    if last_move and last_move[1] == col and last_move[0] in range(BOARD_SIZE):
-                        opponent = 1 - player
-                        if player == opponent:  
-                            return opponent
+                    self.board[row][col].top().player == player 
+                    for row in range(BOARD_SIZE)):
                     return player
         
-        #diag
+        # Diagonal checks
         for player in [0, 1]:
             if all(not self.board[i][i].is_empty() and 
-                   self.board[i][i].top().player == player 
-                   for i in range(BOARD_SIZE)):
-                
-                #special case
-                if last_move and last_move[0] == last_move[1] and last_move[0] in range(BOARD_SIZE):
-                    opponent = 1 - player
-                    if player == opponent: 
-                        return opponent
+                self.board[i][i].top().player == player 
+                for i in range(BOARD_SIZE)):
                 return player
             
             if all(not self.board[i][BOARD_SIZE-1-i].is_empty() and 
-                   self.board[i][BOARD_SIZE-1-i].top().player == player 
-                   for i in range(BOARD_SIZE)):
-                
-                #special case
-                if last_move and last_move[0] + last_move[1] == BOARD_SIZE - 1:
-                    opponent = 1 - player
-                    if player == opponent:  
-                        return opponent
+                self.board[i][BOARD_SIZE-1-i].top().player == player 
+                for i in range(BOARD_SIZE)):
                 return player
         
         return None
