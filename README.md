@@ -2,267 +2,361 @@
 
 ## Q1
 
-### 1. Software Specifications
-The Online Food Delivery System is designed to support both Home Delivery and Takeaway orders. It is built from a business perspective and utilizes MongoDB as its primary persistent storage for all system data (users, orders, restaurants, menu items, and delivery agents). Key features include:
-- **Order Types:** Supports Home Delivery and Takeaway.
-- **Delivery Fleet Management:** Manages a fleet of delivery agents for home delivery orders.
-- **Order Tracking:** Customers can view real-time status and the estimated time remaining for their order.
-- **Multiple Orders:** Supports placing and processing multiple orders concurrently.
-- **Manager Dashboard:** Provides a comprehensive view of restaurant performance, including order statistics and revenue.
-- **Persistent Data Storage:** Uses MongoDB to maintain a consistent and shared state across multiple sessions and instances.
-- **User and Admin Authentication:** Secure login and registration for both customers and administrators.
-- **Restaurant & Menu Management:** Admins can add and manage restaurants and their menus via a command-line interface (CLI).
+# Software Requirements Specification (SRS) 
+## 1. Introduction
+
+### 1.1 Purpose
+This SRS document defines the requirements for the Online Food Delivery System. It outlines the system’s functional and non-functional requirements, software specifications, and detailed use cases. The system is intended to serve both end customers and administrators by facilitating online ordering (Home Delivery and Takeaway), order tracking, and restaurant as well as delivery agent management.
+
+### 1.2 Scope
+The system enables customers to register, log in, place orders, and track their orders in real time. Administrators can manage delivery agents, add new restaurants and menu items, and view aggregated order data through a dashboard. The system uses MongoDB for persistent storage and is implemented in Python as a command-line interface (CLI) application.
+
+### 1.3 Definitions, Acronyms, and Abbreviations
+- **Home Delivery:** Orders delivered to the customer by a delivery agent.
+- **Takeaway:** Orders prepared for customer pickup at the restaurant.
+- **Delivery Agent:** Personnel responsible for delivering orders.
+- **MongoDB:** NoSQL database used for persistent storage.
+- **CLI:** Command-Line Interface.
+- **SRS:** Software Requirements Specification.
 
 
-### 2. Use Cases
+### 1.4 Overview of Document
+This document is organized into the following sections: Introduction, Overall Description, Software Specifications, Specific Requirements (including detailed use cases), and Appendices (Glossary and Index).
+
+---
+
+## 2. Overall Description
+
+### 2.1 Product Perspective
+The Online Food Delivery System is a stand-alone CLI application that interacts with a MongoDB database to persist data. It supports end-to-end online food ordering from registration to order tracking and administrative management.
+
+### 2.2 Product Functions
+- **User Management:** Registration, login, and profile management.
+- **Order Management:** Placing orders, tracking order status, and managing order details.
+- **Delivery Management:** Automatic assignment of available delivery agents to Home Delivery orders; queuing of orders when no agents are available.
+- **Restaurant & Menu Management:** Adding and managing restaurant details and menu items.
+- **Administration & Dashboard:** Viewing aggregated restaurant data (orders, revenue, etc.) and managing delivery agents.
+- **Persistent Data Storage:** Uses MongoDB to store all system data consistently.
+
+### 2.3 User Classes and Characteristics
+- **Customers:** End users who place orders and track their status.
+- **Delivery Agents:** Staff responsible for delivering home orders.
+- **Administrators/Managers:** Users with elevated privileges to manage the system (agents, restaurants, orders).
+
+### 2.4 Operating Environment
+- **Software:** Python 3.x, MongoDB (hosted on MongoDB Atlas), and a command-line interface.
+- **Hardware:** Standard desktop or laptop with internet connectivity.
+
+### 2.5 Design and Implementation Constraints
+- Must be implemented in Python.
+- Uses MongoDB for persistent storage.
+- Operates via a command-line interface.
+- Security practices (e.g., password hashing) should be implemented in a production environment.
+
+### 2.6 Assumptions and Dependencies
+- A stable internet connection is available to connect to MongoDB Atlas.
+- The system uses a dedicated pool of delivery agents for Home Delivery orders.
+- Data integrity is maintained through MongoDB.
+- The system’s user interface is CLI-based.
+
+---
+
+## 3. Software Specifications
+
+### 3.1 Technology Stack
+- **Programming Language:** Python 3.x
+- **Database:** MongoDB (using MongoDB Atlas for cloud storage)
+- **Concurrency:** Python threading for simulating asynchronous delivery processes
+- **Interface:** Command-Line Interface (CLI)
+
+### 3.2 Architecture
+- **Modular Design:** The system is divided into distinct modules: Database connection, User Management, Order Processing, Delivery Agent Management, Restaurant & Menu Management, and Admin functionalities.
+- **Singleton Pattern:** The Database module uses a singleton pattern to ensure a single MongoDB connection.
+- **Persistent Storage:** All data is stored in MongoDB, ensuring a persistent and shared state across multiple sessions.
+- **Concurrency Management:** Order deliveries are handled using Python threads, which simulate the passage of time and update order statuses asynchronously.
+
+### 3.3 Design Constraints
+- The system must maintain a responsive CLI.
+- Real-time order tracking is simulated using thread sleep and status updates.
+- The system should be easily extendable for future integration with graphical interfaces or additional features.
+
+---
+
+## 4. Specific Requirements
+
+### 4.1 Functional Requirements
+- **FR1:** Customers can register and log in.
+- **FR2:** Customers can place orders (Home Delivery and Takeaway) with an estimated time for delivery or pickup.
+- **FR3:** The system automatically assigns available delivery agents to Home Delivery orders; orders are queued if no agent is available.
+- **FR4:** Customers can track order status and view estimated times.
+- **FR5:** Administrators can manage delivery agents and view all orders.
+- **FR6:** Administrators can add new restaurants and manage menu items.
+- **FR7:** All data is stored in MongoDB to maintain persistent state.
+
+### 4.2 Non-functional Requirements
+- **Performance:** Order tracking and agent assignment must be updated in near real time.
+- **Reliability:** The system must maintain data consistency and operate continuously.
+- **Security:** User credentials must be handled securely (with proper hashing in production).
+- **Usability:** The CLI should be intuitive and provide clear instructions.
+- **Scalability:** The system should support growing numbers of orders, users, and delivery agents.
+- **Maintainability:** Code must be modular and well-documented.
+
+### 4.3 External Interface Requirements
+- **User Interface:** Command-line interface with clear menus and prompts.
+- **Software Interfaces:** Integration with MongoDB using Python’s pymongo driver.
+- **Communication Interfaces:** Internet connectivity to interact with MongoDB Atlas.
+
+---
+
+## 5. System Features (Use Cases)
 
 ### Use Case Number: UC-01
 **Use Case Name:** Place an Order  
-
 **Overview:**  
 Allows a customer to place an order by selecting a restaurant, choosing menu items, and specifying the order type (Home Delivery or Takeaway).  
-
 **Actors:**  
-- Customer  
-- System  
-- Restaurant  
+- Customer, System, Restaurant  
 
 **Pre condition:**  
-- The customer is logged in and has navigated to the restaurant menu screen.  
+- The customer is logged in and has viewed the restaurant’s menu. 
 
 **Flow:**  
-**Main (Success) Flow:**  
 1. The customer selects a restaurant from the list.  
-2. The system displays the selected restaurant’s menu (fetched from MongoDB).  
-3. The customer selects one or more items and adds them to the cart.  
-4. The customer chooses the order type (Home Delivery or Takeaway).  
+2. The system displays the menu (from MongoDB).  
+3. The customer selects items and adds them to the cart.  
+4. The customer chooses the order type.  
 5. The customer confirms the order.  
-6. The system processes the order:  
-   - For Home Delivery, it assigns an available delivery agent (or places the order in a pending state if none are available) and sets an estimated delivery time.  
-   - For Takeaway, it sets an estimated pickup time.  
-7. The order is recorded in the database with a unique Order ID.
+6. For Home Delivery, an available agent is assigned (or the order is queued if none are available); for Takeaway, an estimated pickup time is set.  
+7. The order is recorded in MongoDB with an Order ID.  
 
 **Alternate Flows:**  
-- **Invalid Order Details:**  
-  - The system prompts the customer to correct missing or invalid details.  
-- **No Delivery Agent Available:**  
-  - The system places the order in a pending state and notifies the customer that an agent will be assigned once available.  
+- Invalid or missing details prompt for corrections.  
+- No available delivery agent results in the order being added to a pending queue.  
 
 **Post Condition:**  
-- The order is successfully saved in the system with an appropriate status, and the customer receives an Order ID and estimated time information.
+- The order is saved with a proper status and timing details.
 
 ---
 
 ### Use Case Number: UC-02
 **Use Case Name:** Track an Order  
-
 **Overview:**  
-Enables a customer to view the current status and estimated time remaining for their order (delivery or pickup).  
+Enables customers to view the current status and remaining time for their order.  
 
 **Actors:**  
-- Customer  
-- System  
+- Customer, System  
 
 **Pre condition:**  
-- The customer has placed an order and received an Order ID. 
+- An order has been placed and an Order ID is available. 
 
 **Flow:**  
-**Main (Success) Flow:**  
 1. The customer selects the "Track Order" option and enters the Order ID.  
-2. The system retrieves the order details from MongoDB.  
-3. The system computes the time remaining using the estimated delivery/pickup time.  
-4. The system displays the order status, estimated time, and (if applicable) the assigned delivery agent’s details.
+2. The system retrieves order details from MongoDB.  
+3. The system calculates the time remaining based on the estimated delivery/pickup time.  
+4. The system displays the status, estimated time, and (if applicable) the assigned delivery agent for Home Delivery.  
 
 **Alternate Flows:**  
-- **Order Not Found:**  
-  - The system displays an error message and prompts for re-entry of the Order ID.  
-
-- **Pending Agent Assignment (Home Delivery):**  
-  - The system indicates that a delivery agent has not yet been assigned and displays "Not available" for time and agent details.
+- Invalid Order ID returns an error.  
+- For Home Delivery orders with no assigned agent, the system displays “Not available” for time and agent details.  
 
 **Post Condition:**  
-- The customer is presented with up-to-date tracking information regarding the order’s status and remaining time.
+- Up-to-date tracking information is provided to the customer.
 
 ---
 
 ### Use Case Number: UC-03
 **Use Case Name:** Manage Delivery Agents  
-
 **Overview:**  
-Allows a manager to manage the delivery fleet by viewing existing agents, adding new agents, and monitoring their status.  
+Enables the manager to view and manage delivery agents, including adding new agents and monitoring their status. 
 
 **Actors:**  
-- Manager  
-- System  
+- Manager, System  
 
 **Pre condition:**  
-- The manager is logged into the system.  
+- The manager is logged in.  
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. The manager selects the "Manage Delivery Agents" option from the admin menu.  
-2. The system displays a list of all delivery agents (retrieved from MongoDB) with details such as name, contact, and current status.  
-3. The manager opts to add a new delivery agent by entering the required information.  
-4. The system validates the input and adds the new agent to the database.  
-5. The updated list of delivery agents is displayed.  
+1. The manager selects “Manage Delivery Agents” from the admin menu.  
+2. The system displays all delivery agents (from MongoDB).  
+3. The manager adds or updates agent details.  
+4. The system updates the agents in MongoDB.  
 
 **Alternate Flows:**  
-- **Invalid Agent Details:**  
-  - The system prompts the manager to re-enter correct details. 
+- Invalid details prompt an error and re-entry.  
 
 **Post Condition:**  
-- The new delivery agent is added, and the system’s delivery agent list is updated.
+- Delivery agents are managed and their statuses updated.
 
 ---
 
 ### Use Case Number: UC-04
-**Use Case Name:** View Restaurant Dashboard
-
+**Use Case Name:** View Restaurant Dashboard  
 **Overview:**  
-Provides a dashboard view for managers to monitor restaurant performance, including total orders, pending orders, completed orders, and total revenue. 
-
+Provides a dashboard for managers to view metrics such as total orders, pending orders, completed orders, and revenue for each restaurant.  
 **Actors:**  
-- Manager  
-- System  
-- Restaurant  
+- Manager, System, Restaurant 
 
 **Pre condition:**  
-- The manager is logged into the system.  
-- Restaurant order data exists in MongoDB.  
+- The manager is logged in and there is existing restaurant order data.  
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. The manager selects the "Restaurant Dashboard" option.  
-2. The system displays a list of restaurants.  
+1. The manager selects “Restaurant Dashboard” from the admin menu.  
+2. The system displays a list of restaurants (from MongoDB).  
 3. The manager selects a restaurant.  
-4. The system retrieves and displays key metrics: total orders, pending orders, completed orders, and revenue.  
-5. The system also displays a list of recent orders for further insight.  
+4. The system retrieves and displays metrics (order counts, revenue, etc.) and recent orders.  
 
 **Alternate Flows:**  
-- **No Order Data:**  
-  - The system notifies the manager that no orders exist for the selected restaurant.  
+- No order data results in a notification.
 
 **Post Condition:**  
-- The manager is provided with a comprehensive dashboard for the selected restaurant.
+- Detailed performance data for the selected restaurant is presented.
 
 ---
 
 ### Use Case Number: UC-05
 **Use Case Name:** Persistent System Instance  
 **Overview:**  
-Ensures that the system’s state (orders, users, agents, restaurants) is maintained across multiple sessions and instances using MongoDB. 
+Ensures that system state (users, orders, restaurants, delivery agents) is maintained across multiple sessions using MongoDB. 
 
 **Actors:**  
-- System Administrator  
-- System  
+- System Administrator, System  
 
 **Pre condition:**  
-- The system is installed and connected to a MongoDB database.  
+- The system is connected to MongoDB.  
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. Multiple instances of the application are launched.  
-2. Each instance connects to the shared MongoDB database to load current data.  
-3. All instances display consistent, up-to-date data reflecting orders, users, restaurants, and agents.  
+1. Multiple application instances are launched.  
+2. Each instance connects to MongoDB and loads current state data.  
+3. All instances display consistent and up-to-date information.
 
 **Alternate Flows:**  
-- **Database Connection Failure:**  
-  - The system displays an error message and notifies the administrator of a degraded mode until the issue is resolved.
+- Database connection failures trigger error messages and degraded operation.  
 
 **Post Condition:**  
-- The system state is synchronized across all sessions, ensuring data consistency and continuity.
+- The state is synchronized across all instances.
 
 ---
 
 ### Use Case Number: UC-06
 **Use Case Name:** User Registration and Login  
-
 **Overview:**  
-Enables new users to register and existing users to log in to the system.  
+Allows new users to register and existing users to log in to the system.  
 
 **Actors:**  
-- Customer  
-- System  
+- Customer, System  
 
 **Pre condition:**  
-- The user has access to the application’s registration and login interface.  
+- The user accesses the registration/login interface.
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. A new user selects "User Registration" and enters details (name, email, password, phone, address).  
-2. The system validates the input and registers the user in MongoDB.  
-3. The user is informed of successful registration.  
-4. The user then logs in using their email and password.  
-5. The system authenticates the user and grants access to the customer interface.  
+1. The user registers by providing name, email, password, phone, and address.  
+2. The system validates and saves the user in MongoDB.  
+3. The user logs in with email and password.  
+4. The system authenticates and grants access.  
 
 **Alternate Flows:**  
-- **Duplicate Registration:**  
-  - If the email or phone number is already registered, the system displays an error and prompts the user to try again.  
-- **Authentication Failure:**  
-  - If incorrect credentials are provided during login, the system displays an error message. 
+- Duplicate registration or authentication failures result in error messages.  
 
 **Post Condition:**  
-- The user is successfully registered and/or logged in, and the user’s data is stored in MongoDB.
+- The user is registered and logged in successfully.
 
 ---
 
 ### Use Case Number: UC-07
 **Use Case Name:** Manage Menu Items  
 **Overview:**  
-Allows a restaurant manager (via the admin interface) to add, update, or remove menu items for a restaurant. 
+Allows restaurant managers (via the admin interface) to add, update, or remove menu items for a restaurant.
 
 **Actors:**  
-- Manager  
-- System  
-- Restaurant  
+- Manager, System, Restaurant 
 
 **Pre condition:**  
-- The manager is logged in and has selected a specific restaurant to manage.  
+- The manager is logged in and a restaurant is selected.  
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. The manager selects the "Manage Menu Items" option for a restaurant.  
-2. The system displays the current menu items (from MongoDB).  
-3. The manager chooses to add a new menu item by entering details such as name, description, price, and category.  
-4. The system validates the input and saves the new menu item to the database.  
-5. The system displays the updated menu.  
+1. The manager selects “Manage Menu Items” for a restaurant.  
+2. The system displays current menu items from MongoDB.  
+3. The manager adds or edits menu item details.  
+4. The system updates the menu in MongoDB.  
 
 **Alternate Flows:**  
-- **Invalid Menu Data:**  
-  - If incorrect data is entered, the system prompts for corrections.  
+- Invalid menu data triggers error messages.  
 
 **Post Condition:**  
-- The restaurant’s menu is updated in MongoDB with the new item.
+- The restaurant’s menu is updated accordingly.
 
 ---
 
 ### Use Case Number: UC-08
 **Use Case Name:** View Order Details  
 **Overview:**  
-Allows a customer or admin to view detailed information about a specific order, including items ordered, price breakdown, and delivery details.  
+Allows customers or admins to view detailed information about a specific order.  
 
 **Actors:**  
-- Customer, Admin  
-- System  
-- Restaurant  
-- Delivery Agent (for Home Delivery)  
+- Customer, Admin, System, Restaurant, Delivery Agent (if applicable)  
 
 **Pre condition:**  
-- The order has been placed and stored in the system.  
+- The order exists in the system with a valid Order ID. 
 
 **Flow:**  
-**Main (Success) Flow:**  
-1. The user selects an order from a list of orders.  
-2. The system retrieves the order details from MongoDB.  
-3. The system displays order information such as restaurant name, customer name, order items, price, order date, and order status.  
-4. For Home Delivery orders, if an agent is assigned, the agent’s details and estimated delivery time are also displayed.  
+1. The user selects an order from the order list.  
+2. The system retrieves order details from MongoDB.  
+3. The system displays detailed order information, including items, pricing, and (for Home Delivery) the delivery agent’s details.
 
 **Alternate Flows:**  
-- **Order Not Found:**  
-  - If the order ID is invalid, the system informs the user that the order does not exist.  
+- An invalid Order ID results in an error message.  
 
 **Post Condition:**  
-- Detailed order information is displayed, enabling the user to review the order’s content and status.
+- Detailed order information is presented to the user.
+
+---
+
+### Use Case Number: UC-09
+**Use Case Name:** Add Restaurant  
+**Overview:**  
+Allows an administrator to add a new restaurant to the system, making it available for customer orders.  
+
+**Actors:**  
+- Manager, System  
+
+**Pre condition:**  
+- The admin is logged in.  
+
+**Flow:**  
+1. The admin selects “Add Restaurant” from the admin menu.  
+2. The admin enters the restaurant name, address, and cuisine type.  
+3. The system validates the input and saves the new restaurant in MongoDB.  
+4. The system confirms the successful addition of the restaurant.
+
+**Alternate Flows:**  
+- Invalid or missing information triggers error messages and re-entry.  
+
+**Post Condition:**  
+- The new restaurant is added to the system and is available for customers to view and order from.
+
+---
+
+## 6. Appendices
+
+### 6.1 Glossary
+- **Home Delivery:** Orders delivered to the customer by a delivery agent.
+- **Takeaway:** Orders prepared for customer pickup.
+- **Delivery Agent:** Personnel responsible for delivering home orders.
+- **MongoDB:** A NoSQL database used for data persistence.
+- **CLI:** Command-Line Interface.
+- **SRS:** Software Requirements Specification.
+
+### 6.2 Index
+- **User Management:** Registration, authentication, and profile management.
+- **Order Processing:** Order placement, tracking, and status updates.
+- **Delivery Management:** Delivery agent assignment and tracking.
+- **Restaurant Management:** Management of restaurant data and menus.
+- **Administration:** System administration, dashboard views, and data monitoring.
+
+---
+
+*End of SRS Document*
+
 
 ---
 
